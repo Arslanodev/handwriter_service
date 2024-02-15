@@ -7,7 +7,7 @@ from pydantic import BaseModel
 
 from celeryapp import celery_app, generate_handwriting
 
-pathlib.Path("file_storage").mkdir(exist_ok=True, parents=True)
+pathlib.Path("../file_storage").mkdir(exist_ok=True, parents=True)
 
 app = FastAPI()
 
@@ -41,4 +41,4 @@ def download_file(filename):
 
 
 if __name__ == "__main__":
-    uvicorn.run(app)
+    pass  # uvicorn.run(app)
