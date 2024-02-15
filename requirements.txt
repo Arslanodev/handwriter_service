@@ -1,6 +1,8 @@
 pillow
-flask
 img2pdf
 celery
 handwriter @ git+https://github.com/Arslanodev/handwriter.git@service
 redis
+fastapi
+pydantic
+uvicorn

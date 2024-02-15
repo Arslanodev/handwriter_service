@@ -1,20 +1,13 @@
-from celery import Celery, Task
-from flask import Flask
+from celery.app import Celery
+from handwriter import Handwriting
+
+redis_url = "redis://localhost:6379"
+
+celery_app = Celery(__name__, broker=redis_url, backend=redis_url)
 
 
-def celery_init_app(app: Flask) -> Celery:
-    """Creates and returns Celery app instances"""
-    class FlaskTask(Task):
-        def __call__(self, *args: object, **kwargs: object) -> object:
-            with app.app_context():
-                return self.run(*args, **kwargs)
+@celery_app.task
+def generate_handwriting(text: list[str]):
+    filename = Handwriting(txt=text, output_filepath="file_storage").generate()
 
-    celery_app = Celery(app.name, task_cls=FlaskTask)
-    # Celery configs is taken from flask app CELERY key
-    celery_app.config_from_object(app.config["CELERY"])
-
-    # Set default so that it is seen during each request
-    celery_app.set_default()
-    app.extensions["celery"] = celery_app
-
-    return celery_app
+    return {"download_link": f"/download/{filename}"}

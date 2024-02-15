@@ -1,38 +1,32 @@
-from flask import Flask, request, send_file
-from celeryapp import celery_init_app
-from tasks import generate_handwriting
+import pathlib
 
-from celery.result import AsyncResult
+import uvicorn
+from fastapi import FastAPI
+from fastapi.responses import FileResponse
+from pydantic import BaseModel
 
+from celeryapp import celery_app, generate_handwriting
 
-def create_app() -> Flask:
-    app = Flask(__name__)
-    app.config.from_mapping(
-        CELERY=dict(
-            broker_url="redis://localhost",
-            result_backend="redis://localhost",
-            task_ignore_result=True,
-        ),
-    )
-    app.config.from_prefixed_env()
-    celery_init_app(app)
-    return app
+pathlib.Path("file_storage").mkdir(exist_ok=True, parents=True)
+
+app = FastAPI()
 
 
-app = create_app()
+# Schemas
+class Text(BaseModel):
+    text: list[str]
 
 
 @app.post("/")
-def start_handwriting():
-    text = request.json["text"]
-    result = generate_handwriting.delay(text)
+def start_handwriting(data: Text):
+    result = generate_handwriting.delay(data.text)
 
     return {"result_id": result.id}
 
 
-@app.get("/result/<id>")
-def task_result(id: str) -> dict[str, object]:
-    result = AsyncResult(id)
+@app.get("/result/{task_id}")
+def task_result(task_id: str) -> dict[str, object]:
+    result = celery_app.AsyncResult(task_id)
     return {
         "ready": result.ready(),
         "successful": result.successful(),
@@ -40,10 +34,11 @@ def task_result(id: str) -> dict[str, object]:
     }
 
 
-@app.get("/download/<filename>")
+@app.get("/download/{filename}")
 def download_file(filename):
-    return send_file(f"file_storage/{filename}.pdf", as_attachment=True)
+    filepath = pathlib.Path(f"file_storage/{filename}.pdf")
+    return FileResponse(filepath, media_type="application/octet-stream")
 
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=8080, debug=True)
+    uvicorn.run(app)
