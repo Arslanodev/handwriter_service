@@ -1,6 +1,7 @@
 import pathlib
-
 import uvicorn
+
+
 from fastapi import FastAPI
 from fastapi.responses import FileResponse
 from pydantic import BaseModel
@@ -21,7 +22,7 @@ class Text(BaseModel):
 def start_handwriting(data: Text):
     result = generate_handwriting.delay(data.text)
 
-    return {"result_id": result.id}
+    return {"result_id": f"/result/{result.id}"}
 
 
 @app.get("/result/{task_id}")
@@ -41,4 +42,4 @@ def download_file(filename):
 
 
 if __name__ == "__main__":
-    pass  # uvicorn.run(app)
+    uvicorn.run(app)
