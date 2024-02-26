@@ -1,7 +1,7 @@
 from celery.app import Celery
 from handwriter import Handwriting
 
-redis_url = "redis://localhost:6379"
+redis_url = "redis:6379"
 
 celery_app = Celery(__name__, broker=redis_url, backend=redis_url)
 
