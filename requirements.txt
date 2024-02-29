@@ -1,6 +1,6 @@
 pillow==10.2.0
 img2pdf==0.5.1
-celery==5.3.6
+celery
 handwriter @ git+https://github.com/Arslanodev/handwriter.git@service
 redis==5.0.1
 fastapi==0.109.2

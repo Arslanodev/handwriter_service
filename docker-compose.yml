@@ -1,9 +1,27 @@
-version: "3"
+version: "3.8"
 
 services:
-  app:
-    build: ./code
+  web:
+    container_name: web
+    build: .
     ports:
-      - "5000:5000"
+      - 8000:8000
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000
+    environment:
+      - CELERY_BROKER_URL=redis://redis:6379/0
+      - CELERY_RESULT_BACKEND=redis://redis:6379/0
+    depends_on:
+      - redis
+
+  worker:
+    build: .
+    command: celery -A app.worker worker --loglevel=info
+    environment:
+      - CELERY_BROKER_URL=redis://redis:6379/0
+      - CELERY_RESULT_BACKEND=redis://redis:6379/0
+    depends_on:
+      - web
+      - redis
+
   redis:
-    image: "redis:alpine"
+    image: redis:alpine

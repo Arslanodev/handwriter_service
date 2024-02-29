@@ -1,13 +1,12 @@
-FROM python:3.12
+FROM python:3.12.2-bookworm
 
 WORKDIR /code
 
-COPY ./requirements.txt /code/requirements.txt
+ADD ./requirements.txt ./
 
-RUN pip3 install --no-cache-dir --upgrade -r /code/requirements.txt
+RUN apt install git \
+    && pip3 install -r requirements.txt
 
-COPY ./app /code/app
+COPY ./app ./app
 
-RUN celery -A app/celeryapp worker --loglevel INFO
-
-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "80"]    
+COPY ./file_storage ./

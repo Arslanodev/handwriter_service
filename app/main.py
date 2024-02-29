@@ -1,19 +1,20 @@
+import os
+
 import pathlib
 import uvicorn
-
 
 from fastapi import FastAPI
 from fastapi.responses import FileResponse
 from pydantic import BaseModel
 
-from celeryapp import celery_app, generate_handwriting
+from .worker import celery_app, generate_handwriting
 
-pathlib.Path("../file_storage").mkdir(exist_ok=True, parents=True)
+pathlib.Path("file_storage").mkdir(exist_ok=True, parents=True)
 
 app = FastAPI()
 
 
-# Schemas
+# Schema
 class Text(BaseModel):
     text: list[str]
 
@@ -38,7 +39,11 @@ def task_result(task_id: str) -> dict[str, object]:
 @app.get("/download/{filename}")
 def download_file(filename):
     filepath = pathlib.Path(f"file_storage/{filename}.pdf")
-    return FileResponse(filepath, media_type="application/octet-stream")
+    c1 = os.listdir("file_storage")
+    c2 = os.listdir(".")
+    c4 = os.listdir("app")
+    return c1, c2, c4
+    # return FileResponse(filepath, media_type="application/octet-stream")
 
 
 if __name__ == "__main__":
