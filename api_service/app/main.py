@@ -40,7 +40,7 @@ def task_result(task_id: str) -> dict[str, object]:
 def download_file(filename):
     filepath = pathlib.Path(f"file_storage/{filename}.pdf")
     c1 = os.listdir("file_storage")
-    c2 = os.listdir(".")
+    c2 = os.listdir("")
     c4 = os.listdir("app")
     return c1, c2, c4
     # return FileResponse(filepath, media_type="application/octet-stream")
