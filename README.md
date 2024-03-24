@@ -1,5 +1,5 @@
 # Description
-Service for generating handwritten text out of digital text
+Service for generating handwritten text out of digital text. Currently this software application is in development stage.
 
 ## Endpoints
 
